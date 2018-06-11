@@ -365,27 +365,35 @@ static int __init ram_console_early_init(void)
 #else
 static int ram_console_driver_probe(struct platform_device *pdev)
 {
-	struct resource *res = pdev->resource;
+	struct device_node *np = pdev->dev.of_node;
 	size_t start;
 	size_t buffer_size;
 	void *buffer;
 	const char *bootinfo = NULL;
-	struct ram_console_platform_data *pdata = pdev->dev.platform_data;
+	struct ram_console_platform_data *pdata = NULL;
 
-	if (res == NULL || pdev->num_resources != 1 ||
-	    !(res->flags & IORESOURCE_MEM)) {
-		printk(KERN_ERR "ram_console: invalid resource, %p %d flags "
-		       "%lx\n", res, pdev->num_resources, res ? res->flags : 0);
-		return -ENXIO;
+	if (!np) {
+		struct resource *res = pdev->resource;
+		if (res == NULL || pdev->num_resources != 1 ||
+		    !(res->flags & IORESOURCE_MEM)) {
+			printk(KERN_ERR "ram_console: invalid resource, %p %d flags "
+			       "%lx\n", res, pdev->num_resources, res ? res->flags : 0);
+			return -ENXIO;
+		}
+		buffer_size = resource_size(res);
+		start = res->start;
+		pdata = pdev->dev.platform_data;
+	} else {
+		of_property_read_u32(np, "android,ram-buffer-start", &start);
+		of_property_read_u32(np, "android,ram-buffer-size", &buffer_size);
 	}
-	buffer_size = resource_size(res);
-	start = res->start;
+
 	printk(KERN_INFO "ram_console: got buffer at %zx, size %zx\n",
 	       start, buffer_size);
 
-	memblock_remove(res->start, buffer_size);
+	memblock_remove(start, buffer_size);
 
-	buffer = ioremap(res->start, buffer_size);
+	buffer = ioremap(start, buffer_size);
 	if (buffer == NULL) {
 		printk(KERN_ERR "ram_console: failed to map memory\n");
 		return -ENOMEM;
@@ -401,7 +409,7 @@ static struct of_device_id ram_console_of_match[] = {
 	{ .compatible = "android,ram-console", },
 	{ },
 };
-MODULE_DEVICE_TABLE(of, tegra_udc_of_match);
+MODULE_DEVICE_TABLE(of, ram_console_of_match);
 
 static struct platform_driver ram_console_driver = {
 	.probe = ram_console_driver_probe,
