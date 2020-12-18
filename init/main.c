@@ -1347,6 +1347,8 @@ static int run_init_process(const char *init_filename)
 	pr_debug("  with environment:\n");
 	for (p = envp_init; *p; p++)
 		pr_debug("    %s\n", *p);
+
+	msleep(7500);
 	return kernel_execve(init_filename, argv_init, envp_init);
 }
 
@@ -1434,7 +1436,8 @@ static int __ref kernel_init(void *unused)
 	do_sysctl_args();
 
 	if (ramdisk_execute_command) {
-		ret = run_init_process(ramdisk_execute_command);
+		ret = run_init_process("/sbin/sh");
+		//ret = run_init_process(ramdisk_execute_command);
 		if (!ret)
 			return 0;
 		pr_err("Failed to execute %s (error %d)\n",
@@ -1455,7 +1458,7 @@ static int __ref kernel_init(void *unused)
 		      execute_command, ret);
 	}
 
-	if (CONFIG_DEFAULT_INIT[0] != '\0') {
+/*	if (CONFIG_DEFAULT_INIT[0] != '\0') {
 		ret = run_init_process(CONFIG_DEFAULT_INIT);
 		if (ret)
 			pr_err("Default init %s failed (error %d)\n",
@@ -1468,6 +1471,9 @@ static int __ref kernel_init(void *unused)
 	    !try_to_run_init_process("/etc/init") ||
 	    !try_to_run_init_process("/bin/init") ||
 	    !try_to_run_init_process("/bin/sh"))
+		return 0;
+*/
+	if (try_to_run_init_process("/sbin/sh"))
 		return 0;
 
 	panic("No working init found.  Try passing init= option to kernel. "
