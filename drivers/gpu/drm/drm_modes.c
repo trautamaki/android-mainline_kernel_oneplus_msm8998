@@ -762,7 +762,8 @@ int drm_mode_vrefresh(const struct drm_display_mode *mode)
 	if (mode->htotal == 0 || mode->vtotal == 0)
 		return 0;
 
-	num = mode->clock * 1000;
+	num = mode->clock;
+	num *= 1000;
 	den = mode->htotal * mode->vtotal;
 
 	if (mode->flags & DRM_MODE_FLAG_INTERLACE)
