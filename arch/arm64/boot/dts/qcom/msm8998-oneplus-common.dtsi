@@ -424,20 +424,20 @@
 };
 
 &remoteproc_mss {
-	firmware-name = "qcom/OnePlus/MSM8998/mba.mbn",
-	                "qcom/OnePlus/MSM8998/modem.mbn";
+	firmware-name = "qcom/OnePlus/msm8998/mba.mbn",
+	                "qcom/OnePlus/msm8998/modem.mbn";
 };
 
 &remoteproc_slpi {
 	status = "okay";
 
-	firmware-name = "qcom/OnePlus/MSM8998/slpi_v2.mbn";
+	firmware-name = "qcom/OnePlus/msm8998/slpi_v2.mbn";
 };
 
 &remoteproc_adsp {
 	status = "okay";
 
-	firmware-name = "qcom/OnePlus/MSM8998/adsp.mbn";
+	firmware-name = "qcom/OnePlus/msm8998/adsp.mbn";
 };
 
 &mmcc {
